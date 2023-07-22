@@ -25,7 +25,9 @@ function App() {
 
   const [startPlay, setStartPlay] = useState(false);
 
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("General Knowledge");
+
+  // console.log("category from app: ", category);
 
   const [index, setIndex] = useState(0);
 
