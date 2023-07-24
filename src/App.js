@@ -7,52 +7,27 @@ import Login from "./components/login/Login";
 import Navbar from "./components/navbar/Navbar";
 import Rank from "./components/Rank/Rank";
 import Register from "./components/register/Register";
+import RootLayout from "./components/navbar/Root";
+
+import { BrowserRouter as Router } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import { QuizContext } from "./store/QuizContext";
 
 function App() {
-  const [input, setInput] = useState("");
   const [route, setRoute] = useState("signin");
   const [isSignedIn, setIsSignedIn] = useState(false);
 
-  const [userID, setUserID] = useState("");
+  // const [userID, setUserID] = useState("");
   const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [userJoined, setUserJoined] = useState("");
-  const [userRank, setUserRank] = useState(0);
+  // const [userRank, setUserRank] = useState(0);
 
   const [arrayOfData, setArrayOfData] = useState([]);
-
   const [startPlay, setStartPlay] = useState(false);
-
   const [category, setCategory] = useState("General Knowledge");
-
-  // console.log("category from app: ", category);
-
   const [index, setIndex] = useState(0);
 
   let quiz = {};
-
-  const onInputChange = (event) => {
-    setInput(event.target.value);
-  };
-
-  const loadUser = (data) => {
-    setUserID(data.id);
-    setUserName(data.name);
-    setUserEmail(data.email);
-    setUserJoined(data.joined);
-    setUserRank(data.rank);
-  };
-
-  const onRouteChange = (route) => {
-    if (route === "signout") {
-      setRoute("signout");
-    } else if (route === "home") {
-      setIsSignedIn(true);
-    }
-    setRoute("route");
-  };
 
   useEffect(() => {
     fetch("https://opentdb.com/api_category.php")
@@ -73,23 +48,28 @@ function App() {
           setCategory,
           index,
           setIndex,
+          userName,
+          setUserName,
         }}
       >
-        {/* <Navbar isSignedIn={isSignedIn} onRouteChange={onRouteChange} />
-      {route === "home" ? (
-        <div>
-          <h2>asdsd</h2>
-          <Rank name={userName} rank={userRank} />
-          <Game />
-        </div>
-      ) : route === "signin" ? (
-        <Login onRouteChange={onRouteChange} loadUser={loadUser} />
-      ) : (
-        <Register onRouteChange={onRouteChange} loadUser={loadUser} />
-      )} */}
-        {/* {!startPlay ? <Game arrayOfData={arrayOfData} /> : <Quiz />} */}
-        <Game arrayOfData={arrayOfData} />
-        {/* <Quiz /> */}
+        <Router>
+          <div>
+            <section>
+              <Routes>
+                {" "}
+                {/* <Route path="/" element={<Game arrayOfData={arrayOfData} />} /> */}
+                <Route
+                  path="/game"
+                  element={<Game arrayOfData={arrayOfData} />}
+                />
+                <Route path="/register" element={<Register />} />
+                <Route path="/" element={<Login />} />
+              </Routes>
+            </section>
+          </div>
+        </Router>
+
+        {/* <Game arrayOfData={arrayOfData} /> */}
       </QuizContext.Provider>
     </div>
   );

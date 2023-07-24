@@ -1,8 +1,18 @@
 import { React, useState } from "react";
 
-import { Button, Checkbox, Form } from "semantic-ui-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 
-export default function Register(onRouteChange, loadUser) {
+import Layout from "../UI/Layout";
+import styles from "./Register.module.css";
+
+import CustomBtn from "../UI/CustomBtn";
+import CustomInput from "../UI/CustomInput";
+
+export default function Register() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -19,48 +29,51 @@ export default function Register(onRouteChange, loadUser) {
     setName(event.target.value);
   };
 
-  const onSubmitRegister = () => {
-    fetch("http://localhost:3000/register", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-        name: name,
-      }),
-    })
-      .then((response) => response.json())
-      .then((user) => {
-        if (user.id) {
-          loadUser(user);
-          onRouteChange("home");
-        }
+  const userRR = {
+    name: name,
+    email: email,
+    password: password,
+  };
+
+  const onSubmitRegister = async (e) => {
+    e.preventDefault();
+
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        navigate("/login");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
       });
+    console.log(userRR);
   };
 
   return (
-    <div className="login">
-      <h2>REGISTER</h2>
-      <Form className="shadow-5 pa3">
-        <Form.Field>
-          <label>Name</label>
-          <input placeholder="Name" onChange={onNameChange} />
-        </Form.Field>
-        <Form.Field>
-          <label>Email</label>
-          <input placeholder="Email" onChange={onEmailChange} />
-        </Form.Field>
-        <Form.Field>
-          <label>Password</label>
-          <input placeholder="Password" onChange={onPasswordChange} />
-        </Form.Field>
-        <Form.Field>
-          <Checkbox label="I agree to the Terms and Conditions" />
-        </Form.Field>
-        <Button type="submit" onClick={onSubmitRegister}>
-          Register
-        </Button>
-      </Form>
-    </div>
+    <Layout>
+      <div className={styles.container}>
+        <h2>REGISTER</h2>
+        <div>
+          <form className={styles.form}>
+            {/* <CustomInput onCHange={onNameChange}>Name</CustomInput> */}
+            <CustomInput onCHange={onEmailChange} type={"email"}>
+              Email
+            </CustomInput>
+            <CustomInput onCHange={onPasswordChange} type={"password"}>
+              Password
+            </CustomInput>
+            <div className={styles.btn}>
+              <CustomBtn onClick={onSubmitRegister}>Register</CustomBtn>
+            </div>
+          </form>
+          <p>
+            Already have an account? <NavLink to="/login">Sign in</NavLink>
+          </p>
+        </div>
+      </div>
+    </Layout>
   );
 }

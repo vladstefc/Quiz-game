@@ -1,54 +1,69 @@
-import { React, useState } from "react";
-import "./Login.css";
+import { React, useState, useContext } from "react";
+import styles from "./Login.module.css";
 
-import { Button, Form } from "semantic-ui-react";
+import { QuizContext } from "../../store/QuizContext";
 
-export default function Login(onRouteChange, loadUser) {
-  const [signInEmail, setsignInEmail] = useState("");
-  const [signInPassword, setsignInPassword] = useState("");
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+import { NavLink, useNavigate } from "react-router-dom";
+
+import Layout from "../UI/Layout";
+
+import CustomBtn from "../UI/CustomBtn";
+import CustomInput from "../UI/CustomInput";
+
+export default function Login() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const onEmailChange = (event) => {
-    setsignInEmail(event.target.value);
+    setEmail(event.target.value);
   };
 
   const onPasswordChange = (event) => {
-    setsignInPassword(event.target.value);
+    setPassword(event.target.value);
   };
 
-  const onSubmitSignIn = () => {
-    fetch("http://localhost:3000/signin", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: signInEmail,
-        password: signInPassword,
-      }),
-    })
-      .then((response) => response.json())
-      .then((user) => {
-        if (user.id) {
-          loadUser(user);
-          onRouteChange("home");
-        }
+  const onSubmitSignIn = (e) => {
+    e.preventDefault();
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        navigate("/game");
+        // console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // console.log(errorCode, errorMessage);
       });
   };
-  return (
-    <div className="login">
-      <Form className="shadow-5 pa3">
-        <h2>SIGN IN</h2>
-        <Form.Field>
-          <label>Email</label>
-          <input placeholder="Email" onChange={onEmailChange} />
-        </Form.Field>
-        <Form.Field>
-          <label>Password</label>
-          <input placeholder="Password" onChange={onPasswordChange} />
-        </Form.Field>
 
-        <Button type="submit" onClick={onSubmitSignIn}>
-          Sign In
-        </Button>
-      </Form>
-    </div>
+  return (
+    <Layout>
+      <div className={styles.container}>
+        <h2>LOGIN</h2>
+        <div>
+          <form className={styles.form}>
+            <CustomInput type={"email"} required onChange={onEmailChange}>
+              Email
+            </CustomInput>
+            <CustomInput type={"password"} required onChange={onPasswordChange}>
+              Password
+            </CustomInput>
+            <div className={styles.btn}>
+              <CustomBtn onClick={onSubmitSignIn}>Login</CustomBtn>
+            </div>
+            <CustomBtn>Register</CustomBtn>
+          </form>
+          <div className={styles.forgot}>
+            <a>Forgot your password?</a>
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
 }

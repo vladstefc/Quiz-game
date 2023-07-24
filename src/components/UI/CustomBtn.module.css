@@ -1,4 +1,5 @@
 .cssbuttonsIoButton {
+    width: 100%;
     background: #6626a6;
     color: white;
     font-family: inherit;
@@ -16,6 +17,7 @@
     position: relative;
     height: 2.8em;
     padding-right: 3.3em;
+    cursor: pointer;
   }
   
   .cssbuttonsIoButton .icon {
